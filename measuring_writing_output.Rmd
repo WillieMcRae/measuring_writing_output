@@ -1,0 +1,128 @@
+---
+title: "Measuring Writing Output"
+author: "An [Experiment In Art](https://experimentinart.com/) by [Willie McRae](https://williemcrae.com)"
+date: "2017-11-18"
+output: 
+  html_document:
+    css: EIA_styles.css
+    highlight: pygments
+    toc: yes
+    toc_float: yes
+---
+<img src="EIA_logo_notext.jpg" style="position:absolute;top:10px;right:0px; width:150px; height=150px" />
+
+```{r, include = FALSE}
+# TODO - apply EIA template
+# TODO - create better pre-processing script
+```
+
+Measure daily writing output.  
+
+* Write text in [Flowstate](http://hailoverman.com/flowstate)   
+* Transfer to [Scrivener](https://www.literatureandlatte.com/scrivener.php) and spellcheck  
+* Save as .rtf in local data folder
+* Import to R 
+* Borrowing analysis largely from [Tidy Text Mining](http://tidytextmining.com/)  
+
+```{r, include = FALSE}
+# Set working directory
+setwd("/Users/williambidstrup/GitHub/measuring_writing_output")
+
+# Install and load packages
+install.packages("tidyverse", repos="http://cran.rstudio.com/")
+library(tidyverse)
+
+install.packages("tidytext", repos="http://cran.rstudio.com/")
+library(tidytext)
+
+install.packages("wordcloud", repos="http://cran.rstudio.com/")
+library(wordcloud)
+
+```
+
+
+
+```{r, include = FALSE}
+# Import new data (from local host database)
+new_mwo <- read_lines("/Users/williambidstrup/Documents/Words/6.\ Data/measuring_writing_output/mwo_2017-11-18.rtf")
+
+# Make data frame
+new_mwo <- data_frame(line = 1:42, text = new_mwo) #Insert number of lines as required
+
+# Make tidy
+new_mwo_tidy <- new_mwo %>%
+  unnest_tokens(word, text)
+
+# Add snapshot date
+new_mwo_tidy$snapshot <- as.Date("2017-11-18")
+
+
+```
+
+
+
+```{r, include = FALSE}
+# Combine to existing
+old_mwo <- read.csv("/Users/williambidstrup/Documents/Words/6.\ Data/measuring_writing_output/mwo_master.csv", stringsAsFactors = FALSE)
+old_mwo$snapshot <- as.Date(old_mwo$snapshot, format = "%Y-%m-%d")
+
+mwo <- rbind(old_mwo, new_mwo_tidy)
+mwo$snapshot <- as.Date(mwo$snapshot, format = "%Y-%m-%d")
+
+# Export new master
+write.csv(mwo, "mwo_master.csv", row.names = FALSE) # TODO - figure out how to put in data folder instead of manual move
+
+```
+
+
+
+
+```{r, include = FALSE}
+# TODO - find a way to remove numbers  via REGEX
+
+# No stop_words set
+data(stop_words)
+
+mwo_clean <- mwo %>%
+  anti_join(stop_words)
+```
+
+```{r, include = FALSE}
+mwo %>%
+  count(word, sort = TRUE)
+
+mwo_clean %>%
+  count(word, sort = TRUE)
+```
+
+
+
+```{r, echo = FALSE}
+ggplot(data = mwo %>%
+         group_by(snapshot) %>%
+         summarise(count = n()), aes(x = snapshot, y = count, group = 1)) +
+  geom_line() +
+  theme_dark() +
+  labs(title = "Words per day", x = "" , y = "",
+       subtitle = "",
+       caption = expression(paste(italic("")))) 
+
+
+
+
+```
+
+
+Most popular words...
+
+```{r, echo = FALSE, message = FALSE}
+# TODO - find out how to look at wordcloud per snapshot date using pwalk or similar
+# TODO - remove numbers with stringr
+
+mwo %>%
+  anti_join(stop_words) %>%
+  count(word) %>%
+  with(wordcloud(word, n, max.words = 100))
+
+```
+
