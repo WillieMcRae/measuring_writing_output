@@ -1,7 +1,7 @@
 ---
 title: "Measuring Writing Output"
 author: "An [Experiment In Art](https://experimentinart.com/) by [Willie McRae](https://williemcrae.com)"
-date: "2017-11-18"
+date: "2017-11-23"
 output: 
   html_document:
     css: EIA_styles.css
@@ -23,6 +23,9 @@ Measure daily writing output.
 * Save as .rtf in local data folder
 * Import to R 
 * Borrowing analysis largely from [Tidy Text Mining](http://tidytextmining.com/)  
+* Code is [here](https://github.com/WillieMcRae/measuring_writing_output/blob/master/measuring_writing_output.Rmd)
+
+Here are the words per 10minutes;  
 
 ```{r, include = FALSE}
 # Set working directory
@@ -44,17 +47,17 @@ library(wordcloud)
 
 ```{r, include = FALSE}
 # Import new data (from local host database)
-new_mwo <- read_lines("/Users/williambidstrup/Documents/Words/6.\ Data/measuring_writing_output/mwo_2017-11-18.rtf")
+new_mwo <- read_lines("/Users/williambidstrup/Documents/Words/6.\ Data/measuring_writing_output/mwo_2017-11-23.txt")
 
 # Make data frame
-new_mwo <- data_frame(line = 1:42, text = new_mwo) #Insert number of lines as required
+new_mwo <- data_frame(text = new_mwo) #Insert number of lines as required
 
 # Make tidy
 new_mwo_tidy <- new_mwo %>%
   unnest_tokens(word, text)
 
 # Add snapshot date
-new_mwo_tidy$snapshot <- as.Date("2017-11-18")
+new_mwo_tidy$snapshot <- as.Date("2017-11-23")
 
 
 ```
@@ -65,6 +68,7 @@ new_mwo_tidy$snapshot <- as.Date("2017-11-18")
 # Combine to existing
 old_mwo <- read.csv("/Users/williambidstrup/Documents/Words/6.\ Data/measuring_writing_output/mwo_master.csv", stringsAsFactors = FALSE)
 old_mwo$snapshot <- as.Date(old_mwo$snapshot, format = "%Y-%m-%d")
+
 
 mwo <- rbind(old_mwo, new_mwo_tidy)
 mwo$snapshot <- as.Date(mwo$snapshot, format = "%Y-%m-%d")
@@ -78,7 +82,7 @@ write.csv(mwo, "mwo_master.csv", row.names = FALSE) # TODO - figure out how to p
 
 
 ```{r, include = FALSE}
-# TODO - find a way to remove numbers  via REGEX
+# TODO - find a way to remove numbers via REGEX
 
 # No stop_words set
 data(stop_words)
@@ -103,7 +107,7 @@ ggplot(data = mwo %>%
          summarise(count = n()), aes(x = snapshot, y = count, group = 1)) +
   geom_line() +
   theme_dark() +
-  labs(title = "Words per day", x = "" , y = "",
+  labs(title = "", x = "" , y = "",
        subtitle = "",
        caption = expression(paste(italic("")))) 
 
@@ -113,7 +117,7 @@ ggplot(data = mwo %>%
 ```
 
 
-Most popular words...
+And here are the most used words...
 
 ```{r, echo = FALSE, message = FALSE}
 # TODO - find out how to look at wordcloud per snapshot date using pwalk or similar
@@ -121,6 +125,7 @@ Most popular words...
 
 mwo %>%
   anti_join(stop_words) %>%
+  filter(! word %in% c("f0", "85", "it_s")) %>%
   count(word) %>%
   with(wordcloud(word, n, max.words = 100))
 
