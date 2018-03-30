@@ -1,0 +1,50 @@
+---
+title: "Measure Writing Output"
+author: "Will Bidstrup"
+date: "2018-03-29"
+output: html_document
+---
+
+# Setup
+
+
+[readtext](https://cran.r-project.org/web/packages/readtext/vignettes/readtext_vignette.html)
+```{r}
+# Packages
+install.packages("tidyverse", repos="http://cran.rstudio.com/")
+library(tidyverse)
+
+install.packages("here", repos="http://cran.rstudio.com/")
+library(here)
+
+install.packages("readtext", repos="http://cran.rstudio.com/")
+library(readtext)
+```
+
+# Load data
+
+## 01 Read .txt files
+
+```{r}
+# Define location of folder
+words_dir <- "/Users/williambidstrup/Documents/Words/words_raw"
+
+# List files
+files <- list.files(path = words_dir)
+
+# Read all files
+d_all <- readtext(paste0(words_dir, "/*"))
+
+
+# Read just one
+d <- readtext("/Users/williambidstrup/Documents/Words/words_raw/2018-03-10-return-of-the-ten-minute-flowstate.txt")
+```
+
+## 02 Add snapshot date variable
+
+## 03 Append
+
+## 04 Create a funtion to do steps 1-3
+
+
+# Analyse

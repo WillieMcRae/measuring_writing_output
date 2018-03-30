@@ -2,14 +2,9 @@
 title: "Measuring Writing Output"
 author: "An [Experiment In Art](https://experimentinart.com/) by [Willie McRae](https://williemcrae.com)"
 date: "2017-11-23"
-output: 
-  html_document:
-    css: EIA_styles.css
-    highlight: pygments
-    toc: yes
-    toc_float: yes
+output: html_document
 ---
-<img src="EIA_logo_notext.jpg" style="position:absolute;top:10px;right:0px; width:150px; height=150px" />
+
 
 ```{r, include = FALSE}
 # TODO - apply EIA template
